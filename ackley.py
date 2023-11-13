@@ -4,11 +4,16 @@ import random
 from deap import base
 from deap import creator
 from deap import tools
+from matplotlib import pyplot as plt
 
 a_coeff = 20
 b_coeff = 0.2
 c_coeff = 2 * math.pi
 
+min_fitness_values = []
+max_fitness_values = []
+avg_fitness_values = []
+std_fitness_values = []
 
 def individual(icsl):
     genome = list()
@@ -110,6 +115,11 @@ while g < numberIteration:
     sum2 = sum(x * x for x in fits)
     std = abs(sum2 / length - mean ** 2) ** 0.5
 
+    min_fitness_values.append(min(fits))
+    max_fitness_values.append(max(fits))
+    avg_fitness_values.append(mean)
+    std_fitness_values.append(std)
+
     print(" Min %s" % min(fits))
     print(" Max %s" % max(fits))
     print(" Avg %s" % mean)
@@ -119,3 +129,37 @@ while g < numberIteration:
 print("Best individual is %s" % (best_ind,))
 print("Fitness value: %s" % best_ind.fitness.values)
 print("-- End of (successful) evolution --' -")
+
+generations = list(range(1, numberIteration + 1))
+
+plt.figure(figsize=(10, 6))
+plt.plot(generations, min_fitness_values, label='Min Fitness', color='red')
+plt.xlabel('Generation')
+plt.ylabel('Fitness Values')
+plt.legend()
+plt.title('Minimum Fitness Progression')
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.plot(generations, max_fitness_values, label='Max Fitness', color='green')
+plt.xlabel('Generation')
+plt.ylabel('Fitness Values')
+plt.legend()
+plt.title('Maximum Fitness Progression')
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.plot(generations, avg_fitness_values, label='Avg Fitness', color='blue')
+plt.xlabel('Generation')
+plt.ylabel('Fitness Values')
+plt.legend()
+plt.title('Average Fitness Progression')
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.plot(generations, std_fitness_values, label='Std Fitness', color='purple')
+plt.xlabel('Generation')
+plt.ylabel('Fitness Values')
+plt.legend()
+plt.title('Standard Deviation Fitness Progression')
+plt.show()
