@@ -20,9 +20,8 @@ def decodeInd(individual):
     decoded_numbers = []
 
     for i in range(0, len(individual), binary_length):
-        integer_part = sum([bit * 2 ** j for j, bit in enumerate(individual[i:i + 8][::-1])])
-        decimal_part = sum(
-            [bit * 2 ** j for j, bit in enumerate(individual[i + 8:i + 16][::-1])]) / 10 ** decimal_digits_precision
+        integer_part = sum([bit * 2 ** j for j, bit in enumerate(individual[i:i + binary_length // 2][::-1])])
+        decimal_part = sum([bit * 2 ** j for j, bit in enumerate(individual[i + binary_length // 2:i + binary_length][::-1])]) / 10 ** decimal_digits_precision
 
         decoded_numbers.append(integer_part + decimal_part)
 
