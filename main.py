@@ -5,19 +5,30 @@ from deap import base
 from deap import creator
 from deap import tools
 
+binary_length = 20
+variables = 2
+decimal_digits_precision = 5
 
 def individual(icsl):
     genome = list()
-    for x in range(0, 40):
+    for x in range(0, variables * binary_length):
         genome.append(randint(0, 1))
     return icsl(genome)
 
 
 def decodeInd(individual):
-    return [sum([bit * 2 ** i for i, bit in enumerate(individual[i:i + 4][::-1])]) for i in
-            range(0, len(individual), 4)]
+    decoded_numbers = []
 
-# Czemu tu jest odwołanie do 0 i 1 elementu, skoro lista ma 10 elementów???
+    for i in range(0, len(individual), binary_length):
+        integer_part = sum([bit * 2 ** j for j, bit in enumerate(individual[i:i + 8][::-1])])
+        decimal_part = sum(
+            [bit * 2 ** j for j, bit in enumerate(individual[i + 8:i + 16][::-1])]) / 10 ** decimal_digits_precision
+
+        decoded_numbers.append(integer_part + decimal_part)
+
+    return decoded_numbers
+
+
 def fitnessFunction(individual):
     ind = decodeInd(individual)
     return ((ind[0] + 2 * ind[1] - 7) ** 2 + (2 * ind[0] + ind[1] - 5) ** 2),
@@ -107,6 +118,6 @@ while g < numberIteration:
     print(" Std %s" % std)
     best_ind = tools.selBest(pop, 1)[0]
 
-print("Best individual is %s" % (best_ind,))
+print("Best individual is %s" % (decodeInd(best_ind),))
 print("Fitness value: %s" % best_ind.fitness.values)
 print("-- End of (successful) evolution --' -")

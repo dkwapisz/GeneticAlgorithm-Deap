@@ -1,5 +1,6 @@
 import math
 import random
+from random import randint
 
 from deap import base
 from deap import creator
@@ -9,29 +10,39 @@ a_coeff = 20
 b_coeff = 0.2
 c_coeff = 2 * math.pi
 
+binary_length = 20
+variables = 2
+decimal_digits_precision = 5
+
 
 def individual(icsl):
     genome = list()
-    for var in range(0, 2):
-        tmp = []
-        for x in range(0, 40):
-            tmp.append(random.randint(0, 1))
-        genome.append(tmp)
+    for x in range(0, variables * binary_length):
+        genome.append(randint(0, 1))
     return icsl(genome)
 
 
 def decodeInd(individual):
-    return [sum([bit * 2 ** i for i, bit in enumerate(individual[i:i + 4][::-1])]) for i in
-            range(0, len(individual), 4)]
+    decoded_numbers = []
+
+    for i in range(0, len(individual), binary_length):
+        integer_part = sum([bit * 2 ** j for j, bit in enumerate(individual[i:i + 8][::-1])])
+        decimal_part = sum(
+            [bit * 2 ** j for j, bit in enumerate(individual[i + 8:i + 16][::-1])]) / 10 ** decimal_digits_precision
+
+        decoded_numbers.append(integer_part + decimal_part)
+
+    return decoded_numbers
 
 
-# TODO to nie działa. Patrz main.py fitnessFunction, tutaj też chyba coś takiego będzie trzeba zrobić?
 def ackleyFitnessFunction(individual):
-    x, y = individual
+    ind = decodeInd(individual)
+    x = ind[0]
+    y = ind[1]
     N = 2
 
     sum1 = x ** 2 + y ** 2
-    sum2 = math.cos(x * c_coeff) + math.cos(y * c_coeff)
+    sum2 = math.cos(c_coeff * x) + math.cos(c_coeff * y)
 
     term1 = -a_coeff * math.exp(-b_coeff * math.sqrt(1 / N * sum1))
     term2 = -math.exp(1 / N * sum2)
@@ -53,8 +64,8 @@ toolbox.register("individual", individual, creator.Individual)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("evaluate", ackleyFitnessFunction)
 toolbox.register("select", tools.selTournament, tournsize=3)
-toolbox.register("mate", tools.cxBlend, alpha=0.5)
-toolbox.register("mutate", tools.mutGaussian, mu=0.5, sigma=0.5, indpb=0.5)
+toolbox.register("mate", tools.cxOnePoint)
+toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
 
 sizePopulation = 100
 probabilityMutation = 0.2
@@ -125,6 +136,6 @@ while g < numberIteration:
     print(" Std %s" % std)
     best_ind = tools.selBest(pop, 1)[0]
 
-print("Best individual is %s" % (best_ind,))
+print("Best individual is %s" % (decodeInd(best_ind),))
 print("Fitness value: %s" % best_ind.fitness.values)
 print("-- End of (successful) evolution --' -")
