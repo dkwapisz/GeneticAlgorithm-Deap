@@ -67,13 +67,13 @@ toolbox = base.Toolbox()
 toolbox.register("individual", individual, creator.Individual)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("evaluate", ackleyFitnessFunction)
-toolbox.register("select", tools.selTournament, tournsize=3)
-toolbox.register("mate", tools.cxOnePoint)
-toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
+toolbox.register("select", tools.selRoulette)
+toolbox.register("mate", tools.cxUniform, indpb=0.5)
+toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.05)
 
-sizePopulation = 100
-probabilityMutation = 0.2
-probabilityCrossover = 0.8
+sizePopulation = 200
+probabilityMutation = 0.3
+probabilityCrossover = 0.3
 numberIteration = 100
 
 pop = toolbox.population(n=sizePopulation)
@@ -151,34 +151,35 @@ print("-- End of (successful) evolution --' -")
 
 generations = list(range(1, numberIteration + 1))
 
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(15, 10))
+
+plt.subplot(2, 2, 1)
 plt.plot(generations, min_fitness_values, label='Min Fitness', color='red')
 plt.xlabel('Generation')
 plt.ylabel('Fitness Values')
 plt.legend()
 plt.title('Minimum Fitness Progression')
-plt.show()
 
-plt.figure(figsize=(10, 6))
+plt.subplot(2, 2, 2)
 plt.plot(generations, max_fitness_values, label='Max Fitness', color='green')
 plt.xlabel('Generation')
 plt.ylabel('Fitness Values')
 plt.legend()
 plt.title('Maximum Fitness Progression')
-plt.show()
 
-plt.figure(figsize=(10, 6))
+plt.subplot(2, 2, 3)
 plt.plot(generations, avg_fitness_values, label='Avg Fitness', color='blue')
 plt.xlabel('Generation')
 plt.ylabel('Fitness Values')
 plt.legend()
 plt.title('Average Fitness Progression')
-plt.show()
 
-plt.figure(figsize=(10, 6))
+plt.subplot(2, 2, 4)
 plt.plot(generations, std_fitness_values, label='Std Fitness', color='purple')
 plt.xlabel('Generation')
 plt.ylabel('Fitness Values')
 plt.legend()
 plt.title('Standard Deviation Fitness Progression')
+
+plt.tight_layout()
 plt.show()
